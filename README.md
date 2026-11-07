@@ -58,3 +58,5 @@ Bump `version` in both manifests when you change a plugin, so installs pick up t
 ```bash
 claude plugin validate .
 ```
+
+CI (`.github/workflows/validate.yml`) runs `scripts/check.mjs` and `claude plugin validate .` on every PR and push to main.
