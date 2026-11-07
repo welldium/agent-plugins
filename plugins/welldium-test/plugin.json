@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "welldium-test",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Welldium TEST environment: search the Welldium catalog, build supplement plans and share them with clients. Sign in with your Welldium practitioner account.",
   "extensions": {
     "com.openai": {
@@ -18,7 +18,8 @@
         "defaultPrompt": [
           "Build a plan for better sleep for my client in Denmark",
           "Here are my client's lab results — suggest a supplement plan",
-          "Show my latest plan"
+          "Show my latest plan",
+          "Check stock for my plan before I share it"
         ],
         "brandColor": "#05677E",
         "composerIcon": "./assets/icon.png",

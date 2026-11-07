@@ -1,7 +1,7 @@
 {
   "name": "welldium-test",
   "displayName": "Welldium (test)",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Welldium TEST environment: search the Welldium catalog, build supplement plans and share them with clients. Sign in with your Welldium practitioner account.",
   "author": {
     "name": "Welldium",
