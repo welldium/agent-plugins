@@ -45,7 +45,8 @@ plugins/welldium-test/
   .claude-plugin/plugin.json        Claude Code manifest
   .mcp.json                         MCP server, Codex format (OAuth client `codex`); Claude reads it too
   claude.mcp.json                   Claude Code override of the same server (client `claude-pilot`, port 8080)
-  plugin.json                       OpenAI manifest (portable format, max 3 starter prompts)
+  .codex-plugin/plugin.json         OpenAI manifest (max 3 starter prompts)
+  .app.json                         ChatGPT app the plugin uses for its tools (ChatGPT desktop)
   skills/build-plan/SKILL.md        Shared skill
 ```
 

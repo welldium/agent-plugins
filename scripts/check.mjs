@@ -42,9 +42,9 @@ for (const p of openaiMarket?.plugins ?? []) {
 // 3. Per plugin: both manifests exist and agree on name and version.
 for (const name of claudeNames) {
   const claude = json[`plugins/${name}/.claude-plugin/plugin.json`];
-  const openai = json[`plugins/${name}/plugin.json`];
+  const openai = json[`plugins/${name}/.codex-plugin/plugin.json`];
   if (!claude) { fail(`plugins/${name}/.claude-plugin/plugin.json is missing`); continue; }
-  if (!openai) { fail(`plugins/${name}/plugin.json is missing`); continue; }
+  if (!openai) { fail(`plugins/${name}/.codex-plugin/plugin.json is missing`); continue; }
   if (claude.name !== name || openai.name !== name)
     fail(`plugins/${name}: manifest names must both be "${name}" (Claude "${claude.name}", OpenAI "${openai.name}")`);
   if (claude.version !== openai.version)
