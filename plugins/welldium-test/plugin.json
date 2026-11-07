@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "welldium-test",
+  "version": "0.1.0",
+  "description": "Welldium TEST environment: search the Welldium catalog, build supplement plans and share them with clients. Sign in with your Welldium practitioner account.",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Welldium (test)",
+        "shortDescription": "Build and share supplement plans from the Welldium catalog",
+        "category": "Productivity"
+      }
+    }
+  }
+}

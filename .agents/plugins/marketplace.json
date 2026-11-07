@@ -1,0 +1,14 @@
+{
+  "name": "welldium",
+  "interface": {
+    "displayName": "Welldium"
+  },
+  "plugins": [
+    {
+      "name": "welldium-test",
+      "source": { "source": "local", "path": "./plugins/welldium-test" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    }
+  ]
+}

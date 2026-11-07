@@ -1,0 +1,14 @@
+{
+  "name": "welldium",
+  "description": "Welldium plugins for practitioners: search the catalog, build plans and share them with clients.",
+  "owner": {
+    "name": "Welldium"
+  },
+  "plugins": [
+    {
+      "name": "welldium-test",
+      "source": "./plugins/welldium-test",
+      "description": "Welldium TEST environment (test.welldium.com) — for the team to try the plugin before release."
+    }
+  ]
+}
