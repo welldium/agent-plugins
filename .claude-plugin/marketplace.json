@@ -8,7 +8,8 @@
     {
       "name": "welldium-test",
       "source": "./plugins/welldium-test",
-      "description": "Welldium TEST environment (test.welldium.com) — for the team to try the plugin before release."
+      "description": "Welldium TEST environment (test.welldium.com) — for the team to try the plugin before release.",
+      "category": "productivity"
     }
   ]
 }

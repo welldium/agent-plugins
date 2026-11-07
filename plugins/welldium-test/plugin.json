@@ -1,14 +1,28 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "welldium-test",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Welldium TEST environment: search the Welldium catalog, build supplement plans and share them with clients. Sign in with your Welldium practitioner account.",
   "extensions": {
     "com.openai": {
       "interface": {
         "displayName": "Welldium (test)",
         "shortDescription": "Build and share supplement plans from the Welldium catalog",
-        "category": "Productivity"
+        "longDescription": "For health practitioners on Welldium. Turn a goal, symptoms, a prescription or lab results into a supplement plan: search the Welldium catalog with prices and stock for your client's country, review the plan in an interactive card, then share it with your client. You approve every change and nothing is sent to a client without your go-ahead. This is the TEST environment (test.welldium.com).",
+        "developerName": "Welldium",
+        "category": "Productivity",
+        "capabilities": ["Read", "Write"],
+        "websiteURL": "https://welldium.com",
+        "privacyPolicyURL": "https://welldium.com/privacy-policy",
+        "termsOfServiceURL": "https://welldium.com/practitioner-terms-conditions",
+        "defaultPrompt": [
+          "Build a plan for better sleep for my client in Denmark",
+          "Here are my client's lab results — suggest a supplement plan",
+          "Show my latest plan"
+        ],
+        "brandColor": "#05677E",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/logo.png"
       }
     }
   }
