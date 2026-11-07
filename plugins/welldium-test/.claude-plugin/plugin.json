@@ -1,7 +1,7 @@
 {
   "name": "welldium-test",
   "displayName": "Welldium (test)",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Welldium TEST environment: search the Welldium catalog, build supplement plans and share them with clients. Sign in with your Welldium practitioner account.",
   "author": {
     "name": "Welldium",
@@ -10,9 +10,16 @@
   },
   "homepage": "https://welldium.com",
   "repository": "https://github.com/welldium/agent-plugins",
-  "keywords": ["welldium", "supplements", "practitioners", "health", "plans"],
+  "keywords": [
+    "welldium",
+    "supplements",
+    "practitioners",
+    "health",
+    "plans"
+  ],
   "icon": "./assets/logo.png",
   "supportUrl": "https://welldium.com/faqs",
   "privacyPolicyUrl": "https://welldium.com/privacy-policy",
-  "termsOfServiceUrl": "https://welldium.com/practitioner-terms-conditions"
+  "termsOfServiceUrl": "https://welldium.com/practitioner-terms-conditions",
+  "mcpServers": "./claude.mcp.json"
 }

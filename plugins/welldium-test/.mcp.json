@@ -4,8 +4,7 @@
       "type": "http",
       "url": "https://test.welldium.com/api/partner/mcp",
       "oauth": {
-        "clientId": "claude-pilot",
-        "callbackPort": 8080
+        "client_id": "codex"
       }
     }
   }
