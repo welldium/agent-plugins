@@ -51,7 +51,36 @@ for (const name of claudeNames) {
     fail(`plugins/${name}: version differs (Claude ${claude.version}, OpenAI ${openai.version}) — bump both`);
 }
 
-// 4. No secrets. Client ids are public; secrets and API keys must never be committed.
+// 4. Codex / ChatGPT desktop rules. Codex has no validate command and skips bad parts silently
+//    (only its local log says why), so these mirror what it rejected in practice.
+for (const name of claudeNames) {
+  const dir = `plugins/${name}`;
+  const ui = json[`${dir}/plugin.json`]?.extensions?.["com.openai"]?.interface ?? json[`${dir}/.codex-plugin/plugin.json`]?.interface;
+  if (ui) {
+    const prompts = ui.defaultPrompt ?? [];
+    if (prompts.length > 3) fail(`${dir}: interface.defaultPrompt has ${prompts.length} prompts; Codex allows at most 3 and ignores them all otherwise`);
+    for (const p of prompts) if (p.length > 128) fail(`${dir}: starter prompt longer than 128 characters: "${p.slice(0, 40)}…"`);
+    for (const key of ["composerIcon", "logo"]) {
+      const path = ui[key];
+      if (!path) continue;
+      if (!path.startsWith("./assets/")) fail(`${dir}: interface.${key} must be under ./assets/ (got ${path})`);
+      else if (!existsSync(join(root, dir, path))) fail(`${dir}: interface.${key} ${path} does not exist`);
+    }
+  }
+
+  // Codex reads mcp.json, then .mcp.json, and rejects unknown keys ("unknown field `extensions`").
+  if (json[`${dir}/mcp.json`]) fail(`${dir}/mcp.json: Codex reads this file in place of .mcp.json; keep servers in .mcp.json only`);
+  const servers = json[`${dir}/.mcp.json`]?.mcpServers ?? {};
+  const serverKeys = new Set(["type", "url", "headers", "oauth"]);
+  for (const [server, cfg] of Object.entries(servers)) {
+    for (const key of Object.keys(cfg)) if (!serverKeys.has(key)) fail(`${dir}/.mcp.json: server "${server}" has key "${key}" that Codex doesn't accept`);
+    for (const key of Object.keys(cfg.oauth ?? {})) if (key !== "client_id")
+      fail(`${dir}/.mcp.json: server "${server}" oauth.${key} — Codex expects only client_id (Claude-only settings go in claude.mcp.json)`);
+    if (cfg.url && !cfg.url.startsWith("https://")) fail(`${dir}/.mcp.json: server "${server}" url must be https`);
+  }
+}
+
+// 5. No secrets. Client ids are public; secrets and API keys must never be committed.
 const secretPatterns = [/wd_live_[0-9a-f]{8,}/i, /client_?secret"\s*:/i, /"x-api-key"\s*:/i, /-----BEGIN [A-Z ]*PRIVATE KEY-----/];
 for (const file of files.filter((f) => !f.endsWith(".png") && !rel(f).startsWith("scripts/"))) {
   const text = readFileSync(file, "utf8");

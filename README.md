@@ -43,9 +43,9 @@ These don't read this marketplace. Add the server as a custom connector / app by
 .agents/plugins/marketplace.json    Codex / ChatGPT desktop marketplace
 plugins/welldium-test/
   .claude-plugin/plugin.json        Claude Code manifest
-  .mcp.json                         Claude Code MCP server (OAuth client `claude-pilot`, callback port 8080)
-  plugin.json                       OpenAI manifest (portable format)
-  mcp.json                          OpenAI MCP server (OAuth client `chatgpt`)
+  .mcp.json                         MCP server, Codex format (OAuth client `codex`); Claude reads it too
+  claude.mcp.json                   Claude Code override of the same server (client `claude-pilot`, port 8080)
+  plugin.json                       OpenAI manifest (portable format, max 3 starter prompts)
   skills/build-plan/SKILL.md        Shared skill
 ```
 
@@ -60,3 +60,4 @@ claude plugin validate .
 ```
 
 CI (`.github/workflows/validate.yml`) runs `scripts/check.mjs` and `claude plugin validate .` on every PR and push to main.
+Codex has no validator and silently skips parts it can't read (only its local log, `~/.codex/logs_2.sqlite`, says why), so `check.mjs` enforces the rules it applied in practice: at most 3 starter prompts, icons under `./assets/`, and only `type`/`url`/`headers`/`oauth.client_id` in `.mcp.json`.
