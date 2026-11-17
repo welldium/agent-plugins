@@ -37,7 +37,7 @@ Docs: [Submit your plugin](https://claude.com/docs/plugins/submit), [pre-submiss
 - [x] `claude plugin validate` passes (CI)
 - [x] Kebab-case name, `description`, `author`, `version` set
 - [x] Remote MCP server declared with `type` + `https` URL, no secrets in headers
-- [ ] **`LICENSE`** in the plugin folder, or `license` in `plugin.json` — **blocks** submission. Decide the license
+- [x] **`LICENSE`** (MIT) in the repo root and each plugin folder
 - [x] **`README.md` in the plugin folder** (≥ 40 words), saying what the plugin sends where. Copy it into the prod plugin
 - [ ] Submitter on a paid claude.ai plan (Team/Enterprise: an Owner, or a member with the Directory permission); GitHub account connected on claude.ai with push access
 - [ ] Submit the plugin: **Plugin bundle**, repo `welldium/agent-plugins`, path `plugins/welldium`, tracked branch `main`
