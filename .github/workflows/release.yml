@@ -1,34 +1,25 @@
 name: Release
 
-# Runs after a merge to main. For every plugin whose version has no tag yet, it tags the commit
-# `<name>--v<version>` (the `claude plugin tag` convention) and creates a GitHub release with
-# the OpenAI submission ZIP attached.
+# Push a tag `<plugin>--v<version>` (e.g. `claude plugin tag --push` from the plugin folder, or
+# `git tag welldium--v1.0.1 && git push origin welldium--v1.0.1`). This workflow checks that the
+# tag matches the plugin's manifests, builds the OpenAI submission ZIP and creates a DRAFT
+# GitHub release with it attached. Review the draft, then publish it and upload the ZIP to OpenAI.
 #
-# What happens on each platform after that:
-#   - Claude Code / Codex marketplace installs: already live — they read main.
-#   - Anthropic directory: picks up the new commit on its tracked branch (webhook or schedule).
-#   - OpenAI directory: manual — upload the ZIP from the release in the Plugins dashboard.
+# Tags don't decide what Claude Code / Codex users get: our marketplaces and Anthropic's directory
+# read `main`, and ship a plugin when its `version` goes up there.
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    tags: ["*--v*"]
 
 permissions:
   contents: write
-
-concurrency:
-  group: release
-  cancel-in-progress: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          fetch-tags: true
 
       - uses: actions/setup-node@v5
         with:
@@ -39,26 +30,34 @@ jobs:
           node scripts/check.mjs
           npx --yes @anthropic-ai/claude-code plugin validate .
 
-      - name: Tag and release new versions
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Tag matches the plugin version
+        id: tag
         run: |
           set -euo pipefail
-          for manifest in plugins/*/.claude-plugin/plugin.json; do
-            name=$(jq -r .name "$manifest")
-            version=$(jq -r .version "$manifest")
-            tag="${name}--v${version}"
-            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-              echo "• $tag already released"
-              continue
-            fi
-            node scripts/build-openai.mjs "$name"
-            git tag "$tag" "$GITHUB_SHA"
-            git push origin "$tag"
-            prev=$(git tag --list "${name}--v*" --sort=-v:refname | sed -n 2p)
-            gh release create "$tag" "dist/${name}-${version}-openai.zip" \
-              --title "$name $version" \
-              --generate-notes \
-              ${prev:+--notes-start-tag "$prev"}
-            echo "✔ released $tag"
-          done
+          tag="${GITHUB_REF_NAME}"
+          name="${tag%%--v*}"
+          version="${tag##*--v}"
+          manifest="plugins/${name}/.claude-plugin/plugin.json"
+          [ -f "$manifest" ] || { echo "::error::No plugin '${name}' for tag ${tag}"; exit 1; }
+          actual=$(jq -r .version "$manifest")
+          [ "$actual" = "$version" ] || { echo "::error::Tag says ${version}, ${manifest} says ${actual}"; exit 1; }
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build OpenAI ZIP
+        run: node scripts/build-openai.mjs "${{ steps.tag.outputs.name }}"
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NAME: ${{ steps.tag.outputs.name }}
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: |
+          set -euo pipefail
+          git fetch -q --tags
+          prev=$(git tag --list "${NAME}--v*" --sort=-v:refname | grep -vx "${GITHUB_REF_NAME}" | head -1 || true)
+          gh release create "${GITHUB_REF_NAME}" "dist/${NAME}-${VERSION}-openai.zip" \
+            --draft \
+            --title "${NAME} ${VERSION}" \
+            --generate-notes \
+            ${prev:+--notes-start-tag "$prev"}

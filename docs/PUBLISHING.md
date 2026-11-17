@@ -69,11 +69,12 @@ Docs: [Upload and submit your plugin](https://developers.openai.com/plugins/depl
 One version per plugin, the same in `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` (CI enforces it).
 
 1. Open a PR that changes the plugin **and raises `version`** in both manifests (semver: patch for wording/prompts, minor for new skills or tools, major for breaking changes). CI fails a PR that changes plugin files without a higher version.
-2. Merge to `main`. That is the release:
+2. Merge to `main`. Claude and Codex read `main`, so this ships the version there:
    - Our marketplaces serve it right away (`claude plugin update` / Codex picks up the new version).
    - Anthropic's directory scans the new commit on `main` and publishes it if it passes.
-   - The **Release** workflow tags the commit `<name>--v<version>` and creates a GitHub release with `<name>-<version>-openai.zip`.
-3. Upload that ZIP in the OpenAI Plugins dashboard (**Upload plugin to make changes**). This step is manual.
+3. Tag the merge commit `<name>--v<version>`: `claude plugin tag --push` from the plugin folder, or `git tag welldium--v1.0.1 && git push origin welldium--v1.0.1`.
+   The **Release** workflow checks the tag matches the manifests, builds `<name>-<version>-openai.zip` and creates a **draft** GitHub release with it.
+4. Review the draft, publish it, and upload the ZIP in the OpenAI Plugins dashboard (**Upload plugin to make changes**). The upload is manual.
 
 MCP tool changes ship with the server, not the plugin: Anthropic and OpenAI re-scan the live server. Keep tool schemas backwards compatible until the new version is approved.
 
@@ -88,4 +89,4 @@ Never rename a published plugin (`name`); change `displayName` instead.
 | `scripts/build-openai.mjs` | Builds `dist/<name>-<version>-openai.zip` for the OpenAI directory |
 | `scripts/release.config.json` | Per-plugin OAuth client id used in the OpenAI ZIP |
 | `.github/workflows/validate.yml` | PRs and main: all checks + ZIP build (downloadable artifact) |
-| `.github/workflows/release.yml` | main: tag + GitHub release with the ZIP for each new version |
+| `.github/workflows/release.yml` | Tag `<name>--v<version>`: draft GitHub release with the ZIP |
