@@ -10,25 +10,37 @@
 //     `provided` client whose id comes from scripts/release.config.json
 // Output: dist/<name>-<version>-openai.zip
 //
-// Usage: node scripts/build-openai.mjs [plugin-name ...]   (default: every plugin)
+// Usage: node scripts/build-openai.mjs [--test] [plugin-name ...]   (default: every plugin)
+//   --test  build the ZIP from the generated test copy (scripts/build-test.mjs) instead, for a
+//           dry-run upload against the test environment: dist/<test name>-<version>-openai.zip
 import { readFileSync, writeFileSync, rmSync, mkdirSync, cpSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { execFileSync } from "node:child_process";
+import { buildTest } from "./build-test.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1"));
 const readJson = (p) => JSON.parse(readFileSync(p, "utf8"));
 const config = readJson(join(root, "scripts/release.config.json"));
 const market = readJson(join(root, ".claude-plugin/marketplace.json"));
-const names = process.argv.slice(2).length ? process.argv.slice(2) : market.plugins.map((p) => p.name);
+const args = process.argv.slice(2);
+const test = args.includes("--test");
+const requested = args.filter((a) => a !== "--test");
+const names = requested.length ? requested : market.plugins.map((p) => p.name);
 
 const dist = join(root, "dist");
 mkdirSync(dist, { recursive: true });
 
-for (const name of names) {
-  const src = join(root, "plugins", name);
-  if (!existsSync(src)) throw new Error(`plugins/${name} does not exist`);
-  const openai = config[name]?.openai;
-  if (!openai?.clientId) throw new Error(`scripts/release.config.json: ${name}.openai.clientId is missing`);
+for (const pluginName of names) {
+  let src = join(root, "plugins", pluginName);
+  if (!existsSync(src)) throw new Error(`plugins/${pluginName} does not exist`);
+  let openai = config[pluginName]?.openai;
+  if (!openai?.clientId) throw new Error(`scripts/release.config.json: ${pluginName}.openai.clientId is missing`);
+  let name = pluginName;
+  if (test) {
+    const built = buildTest(pluginName);
+    ({ dir: src, name } = built);
+    openai = { ...openai, clientId: built.chatgptClientId };
+  }
 
   const stage = join(dist, "stage", name);
   rmSync(stage, { recursive: true, force: true });

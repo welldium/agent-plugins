@@ -10,12 +10,6 @@
       "source": "./plugins/welldium",
       "description": "Welldium for practitioners: search the catalog, build supplement plans and share them with clients.",
       "category": "productivity"
-    },
-    {
-      "name": "welldium-test",
-      "source": "./plugins/welldium-test",
-      "description": "Welldium TEST environment (test.welldium.com) — for the team to try the plugin before release.",
-      "category": "productivity"
     }
   ]
 }

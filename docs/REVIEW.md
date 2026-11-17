@@ -9,7 +9,7 @@ What each directory asks for at review, where it goes, and what we give it.
 | Release notes | **In the ZIP**: `publication.release_notes` | Not asked. Listing text comes from `plugin.json` and the README |
 | Reviewer account | **Portal** → Review details. Never in the package | By email, if the listing goes to Verified review |
 
-Run every test case on test first (`welldium-test`), then on prod with the reviewer account, before submitting. If a result differs, fix `review/welldium.json`. `tools_triggered` is a comma-separated string of exact MCP tool names, because the portal rejects arrays.
+Run every test case on test first (`node scripts/build-test.mjs`, then `claude --plugin-dir dist/welldium-test`), then on prod with the reviewer account, before submitting. If a result differs, fix `review/welldium.json`. `tools_triggered` is a comma-separated string of exact MCP tool names, because the portal rejects arrays.
 
 ## Reviewer account
 

@@ -13,7 +13,7 @@ Status as of 2026-11-17.
 | [OpenAI directory](https://developers.openai.com/plugins/deploy/submission) (ChatGPT + Codex) | Browse and add in ChatGPT / Codex | **A ZIP**, uploaded in the OpenAI Platform Plugins dashboard | Upload a new ZIP per version (skills, metadata). MCP tool changes are re-scanned from the server, no ZIP needed |
 
 Anthropic's directory reads the repo directly and needs it public, so the repo stays **public**. It only ever holds client ids, never secrets.
-The public directories should list the **production** plugin. `welldium-test` stays in our own marketplace for the team.
+There is one plugin, `welldium` (production). A test copy for trying changes is generated with `scripts/build-test.mjs` and never published.
 
 ## Checklist
 
@@ -87,7 +87,8 @@ Never rename a published plugin (`name`); change `displayName` instead.
 |---|---|
 | `scripts/check.mjs` | Repo rules: JSON, matching versions, Codex quirks, OpenAI listing limits, no secrets |
 | `scripts/check-version-bump.mjs` | PR check: changed plugin ⇒ higher version |
-| `scripts/build-openai.mjs` | Builds `dist/<name>-<version>-openai.zip` for the OpenAI directory |
+| `scripts/build-openai.mjs` | Builds `dist/<name>-<version>-openai.zip` for the OpenAI directory (`--test`: from the test copy) |
+| `scripts/build-test.mjs` | Generates the unpublished test copy `dist/welldium-test` from `plugins/welldium` |
 | `scripts/release.config.json` | Per-plugin OAuth client id and review file used in the OpenAI ZIP |
 | `review/<name>.json` | OpenAI review test cases, demo URL and release notes (merged into the ZIP manifest) |
 | `.github/workflows/validate.yml` | PRs and main: all checks + ZIP build (downloadable artifact) |
