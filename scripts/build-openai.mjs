@@ -39,6 +39,17 @@ for (const name of names) {
   const manifest = readJson(manifestPath);
   delete manifest.apps;
   manifest.mcpServers = "./.mcp.json";
+
+  // Review test cases, demo URL and release notes travel in the ZIP manifest under
+  // extensions["com.openai"] (reviewer credentials are entered in the portal instead).
+  if (openai.review) {
+    const { review, publication } = readJson(join(root, openai.review));
+    const ext = ((manifest.extensions ??= {})["com.openai"] ??= {});
+    const demo = review?.demo_recording_url;
+    ext.review = { ...review };
+    if (!demo) { delete ext.review.demo_recording_url; console.warn(`! ${name}: no demo_recording_url in ${openai.review} — required before submitting for review`); }
+    if (publication) ext.publication = publication;
+  }
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
 
   const mcpPath = join(stage, ".mcp.json");

@@ -1,0 +1,57 @@
+{
+  "review": {
+    "test_cases": {
+      "positive": [
+        {
+          "description": "Search the catalog for a country",
+          "prompt": "Find a magnesium supplement for sleep that's available in Denmark.",
+          "tools_triggered": "search_products",
+          "expected_behavior": "Calls `search_products` with country `DK` and lists matching products with brand, price and stock. Creates or changes nothing."
+        },
+        {
+          "description": "Draft a plan, create it only after approval",
+          "prompt": "Build a plan for better sleep for my client in Denmark: magnesium and a melatonin-free sleep blend.",
+          "tools_triggered": "search_products, create_plan, get_plan",
+          "expected_behavior": "Proposes candidate products in chat and asks for approval before writing. Only after the reviewer says yes, calls `create_plan` with the approved products and shows the plan with `get_plan`."
+        },
+        {
+          "description": "Review the latest plan and check stock",
+          "prompt": "Show my latest plan and check it's all in stock in Denmark.",
+          "tools_triggered": "list_plans, get_plan, check_product_availability",
+          "expected_behavior": "Shows the newest plan's products and quantities, then reports availability for `DK` and flags any out-of-stock product with an alternative. Changes nothing."
+        },
+        {
+          "description": "Edit a plan with confirmation",
+          "prompt": "In my latest plan, remove the sleep blend and add vitamin D instead.",
+          "tools_triggered": "list_plans, get_plan, search_products, remove_products_from_plan, add_products_to_plan",
+          "expected_behavior": "Asks for confirmation before each change, then removes the sleep blend, adds a vitamin D product available in the plan's country, and shows the updated plan."
+        },
+        {
+          "description": "Share a plan with a client only on explicit consent",
+          "prompt": "Share my latest plan with the client anna@example.com by email.",
+          "tools_triggered": "find_clients, add_client_to_plan, share_plan",
+          "expected_behavior": "Finds the client by email (offers `create_client` after confirming if there is no match), grants access with `add_client_to_plan`, then asks again before sending. Calls `share_plan` with channel email only after an explicit yes."
+        }
+      ],
+      "negative": [
+        {
+          "description": "Unrelated request",
+          "prompt": "What's the weather in Copenhagen tomorrow?"
+        },
+        {
+          "description": "Medical diagnosis request",
+          "prompt": "My client has chest pain and shortness of breath. What supplement cures that?"
+        },
+        {
+          "description": "General writing task",
+          "prompt": "Write a blog post about the benefits of vitamin C."
+        }
+      ]
+    },
+    "demo_recording_url": "",
+    "commerce": false
+  },
+  "publication": {
+    "release_notes": "First release. Practitioners can search the Welldium catalog with country-specific prices and stock, build supplement plans from a goal, symptoms, a prescription or lab results, adjust them in chat, and share them with clients by email or SMS. Every write is confirmed, and nothing is sent to a client without the practitioner's go-ahead."
+  }
+}
