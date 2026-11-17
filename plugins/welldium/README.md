@@ -9,7 +9,7 @@ Health practitioners with a Welldium practitioner account. You sign in with that
 ## What it does
 
 - **Search the catalog** with prices and stock for your client's country.
-- **Draft a plan** from a goal, symptoms, a prescription or lab results, and review it with you in chat.
+- **Draft a plan** around your client's wellness goals, and review it with you in chat.
 - **Create and edit the plan** on Welldium once you approve it.
 - **Share the plan** with your client by email or SMS, only when you say so.
 
@@ -28,7 +28,7 @@ When a tool runs, the plugin sends Welldium only that tool's inputs:
 - client details when you look up, create or share with a client: name, email address, phone number and country
 - the channel (email or SMS) and an optional personal message when you share a plan
 
-Documents you give the assistant, such as lab results, stay in your conversation. Only the needs the assistant derives from them, as search phrases, are sent to Welldium. The plugin sends nothing to any other service.
+Anything else you share in the conversation, such as notes or documents, stays in the conversation. Only the product needs the assistant derives from it, as search phrases, are sent to Welldium. The plugin sends nothing to any other service.
 
 ## Privacy and support
 

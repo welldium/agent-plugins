@@ -24,11 +24,13 @@ There is one plugin, `welldium` (production). A test copy for trying changes is 
 - [x] OAuth with pre-registered clients in test Auth DB: `chatgpt`, `claude-pilot`, `codex`. Both directories accept a pre-registered client, so Dynamic Client Registration is **not** required
 - [x] Sign-in that reviewers can use: Welldium Auth supports email + password
 - [ ] **Prod OAuth for the partner MCP** — blocker. On `welldium.com` the protected-resource metadata URL returns the website HTML and the MCP 401 has no `WWW-Authenticate` challenge, so clients cannot discover sign-in. Deploy the Auth OAuth provider and the API OAuth settings to prod
-- [ ] **Production plugin** `welldium` (permanent name) pointing at the prod MCP URL, in both marketplaces
+- [x] **Production plugin** `welldium` (permanent name) pointing at the prod MCP URL, in both marketplaces
 - [ ] **Register the OAuth clients in the prod Auth DB** (`yarn oauth:register-client` in Welldium.Auth): one per surface, see the Claude and OpenAI sections
 - [ ] **Reviewer test account** in prod: email + password, no SMS/MFA/magic link, populated with sample clients and plans
 - [x] **Tool annotations**: every tool has `readOnlyHint`/`destructiveHint`; titles added in welldium/WelldiumAPI#3763 (must be deployed)
-- [ ] Privacy policy covers what the plugin sends (health data, client details)
+- [ ] Privacy policy covers what the plugin sends (client details, plan contents)
+- [ ] **Public documentation** for the connector, e.g. a help-center article on welldium.com: what it does, how to connect, what it can change. Anthropic requires it by the publish date and OpenAI's review reads it too
+- [ ] **Product decisions on health positioning**, see [Health and medical policy](#health-and-medical-policy). Owner: product
 
 ### Anthropic directory — plugin + connector
 
@@ -38,13 +40,14 @@ Docs: [Submit your plugin](https://claude.com/docs/plugins/submit), [pre-submiss
 - [x] Kebab-case name, `description`, `author`, `version` set
 - [x] Remote MCP server declared with `type` + `https` URL, no secrets in headers
 - [x] **`LICENSE`** (MIT) in the repo root and each plugin folder
-- [x] **`README.md` in the plugin folder** (≥ 40 words), saying what the plugin sends where. Copy it into the prod plugin
+- [x] **`README.md` in the plugin folder** (≥ 40 words), saying what the plugin sends where
 - [ ] Submitter on a paid claude.ai plan (Team/Enterprise: an Owner, or a member with the Directory permission); GitHub account connected on claude.ai with push access
 - [ ] Submit the plugin: **Plugin bundle**, repo `welldium/agent-plugins`, path `plugins/welldium`, tracked branch `main`
 - [ ] Set up the GitHub push webhook (needs repo admin)
-- [ ] Data handling answers: plugin handles **personal health data**
+- [ ] Data handling answers: plugin handles **personal data** and health-related context (answers in `docs/REVIEW.md`)
+- [ ] **High-risk use (Medical)**: a qualified practitioner reviews every plan before it reaches a client (already enforced by the skill), **and the client must be told AI was used to produce the plan**. Needs a product change, see [Health and medical policy](#health-and-medical-policy)
 - [ ] Also submit the MCP server as a **connector** (**MCP connector** in the same portal) and pair it with the plugin. Needs: docs URL, privacy policy URL, support contact, icon
-- [ ] Connector auth: enter the OAuth client id (Anthropic-held client). Callback is `https://claude.ai/api/mcp/auth_callback`. Prefer a prod client with only that redirect, separate from the Claude Code client (`claude-pilot`, fixed port 8080)
+- [ ] Connector auth: enter the OAuth client id (Anthropic-held client). Callback is `https://claude.ai/api/mcp/auth_callback`. The prod client `claude` allows it, plus `localhost:8080` for Claude Code
 - [x] No screenshots needed: the server has no MCP App UI (the plan card was removed in the API)
 
 ### OpenAI directory
@@ -63,7 +66,36 @@ Docs: [Upload and submit your plugin](https://developers.openai.com/plugins/depl
 - [ ] Confirm which callback Codex uses for directory installs; the `chatgpt` client only allows `https://chatgpt.com/connector_platform_oauth_redirect`
 - [x] **Test cases** (5 positive, 3 negative) and **release notes** in `review/welldium.json`, built into the ZIP manifest (checked in CI)
 - [ ] **Demo video URL** in `review/welldium.json` (re-record: the existing `welldium-mcp-plan.mp4` predates the plan-card removal), and **reviewer credentials** in the portal. See `docs/REVIEW.md`
+- [x] **Listing avoids clinical inputs**: no symptoms, prescriptions or lab results in the listing text, release notes or test cases
+- [ ] **Health-category risk**, see [Health and medical policy](#health-and-medical-policy). Submit to Anthropic first
 - [ ] Upload the ZIP → fix validation findings → Submit for review → Publish after approval
+
+## Health and medical policy
+
+For product review. This is the biggest risk to the listing, and it's a product call, not an engineering one.
+
+### What the directories say
+
+| | Rule | Source |
+|---|---|---|
+| Anthropic | Healthcare is a **high-risk use case**. The "Medical" area includes "recommending, starting, stopping, or adjusting a treatment or medication, including dose". Allowed, with two duties: "A qualified person must meaningfully review a High-risk AI Recommendation, with the authority to change or modify it", and the person receiving it "must be clearly told that AI was used to produce it" | [Usage Policy](https://www.anthropic.com/legal/aup), [Directory Policy](https://support.claude.com/en/articles/13145358-anthropic-software-directory-policy) §1B |
+| OpenAI | Plugins may not "collect, solicit, or process" **protected health information**. Sensitive data only if "strictly necessary", consented and disclosed. Physical-goods commerce is allowed | [Plugin guidelines](https://developers.openai.com/apps-sdk/app-submission-guidelines) |
+| OpenAI, in practice | November 2026 reports of plugins rejected as "intended for use in healthcare or medicine, which is not yet supported", including an educational drug-interaction reference with no personal data. OpenAI's reply only pointed to the appeal route | [thread 1](https://community.openai.com/t/plugin-rejected-as-healthcare-while-similar-healthcare-plugins-are-published-what-decides-this/1412516), [thread 2](https://community.openai.com/t/plugin-rejected-for-accepting-medications-named-conditions-and-genotype-phenotype-inputs-similar-biomedical-reference-plugins-are-listed/1417101) |
+
+Being practitioner-only is fine for both: OpenAI allows signing in "to an existing paid account", and both want a reviewer account with sample data.
+
+### Our assessment
+
+- **Anthropic: likely to pass**, if we add the client disclosure and public documentation. The practitioner-review duty is already built in: the skill makes the practitioner approve every plan and every send.
+- **OpenAI: uncertain.** A tool that turns client health information into supplement plans reads as "healthcare". Mitigation so far: the listing is framed as a catalog and plan tool around wellness goals, and only search phrases and plan contents reach Welldium (no health records).
+
+### Decisions for product
+
+1. **Positioning.** The listing now says "wellness goals", while the `build-plan` skill still invites "symptoms, a prescription or lab results" (`plugins/welldium/skills/build-plan/SKILL.md`). Options: keep clinical inputs in the skill (more useful, higher OpenAI risk), or limit it to goals and product needs (lower risk). The skill ships to both directories.
+2. **Client disclosure (Anthropic requirement).** Clients who receive a plan must be told AI helped produce it. Where should that go: the plan page, the share email or SMS, or both? Is the wording "Prepared by your practitioner with AI assistance" acceptable? This needs an API or web change.
+3. **Plan notes and intake instructions** can hold health details typed by the practitioner. Do we treat them as health data in the privacy policy and the directories' data-handling answers?
+4. **Public documentation page**: who writes it, and at which URL?
+5. **Submission order**: Anthropic first, then OpenAI with what we learn? If OpenAI rejects, we can appeal by replying to the rejection email.
 
 ## Releases and versions
 
