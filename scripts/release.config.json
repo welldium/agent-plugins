@@ -5,5 +5,11 @@
       "tokenEndpointAuthMethod": "none",
       "review": "review/welldium.json"
     }
+  },
+  "welldium": {
+    "openai": {
+      "clientId": "chatgpt",
+      "tokenEndpointAuthMethod": "none"
+    }
   }
 }

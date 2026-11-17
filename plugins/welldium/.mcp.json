@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "welldium": {
+      "type": "http",
+      "url": "https://welldium.com/api/partner/mcp",
+      "oauth": {
+        "client_id": "codex"
+      }
+    }
+  }
+}

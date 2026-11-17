@@ -1,0 +1,42 @@
+{
+  "name": "welldium",
+  "version": "1.0.0",
+  "description": "Search the Welldium catalog, build supplement plans and share them with your clients. Sign in with your Welldium practitioner account.",
+  "author": {
+    "name": "Welldium",
+    "email": "support@welldium.com",
+    "url": "https://welldium.com"
+  },
+  "homepage": "https://welldium.com",
+  "repository": "https://github.com/welldium/agent-plugins",
+  "keywords": [
+    "welldium",
+    "supplements",
+    "practitioners",
+    "plans"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Welldium",
+    "shortDescription": "Supplement plans for clients",
+    "longDescription": "For health practitioners on Welldium. Turn a goal, symptoms, a prescription or lab results into a supplement plan: search the Welldium catalog with prices and stock for your client's country, review and adjust the plan in chat, then share it with your client. You approve every change and nothing is sent to a client without your go-ahead.",
+    "developerName": "Welldium",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://welldium.com",
+    "supportURL": "https://welldium.com/faqs",
+    "privacyPolicyURL": "https://welldium.com/privacy-policy",
+    "termsOfServiceURL": "https://welldium.com/practitioner-terms-conditions",
+    "defaultPrompt": [
+      "Build a plan for better sleep for my client in Denmark",
+      "Show my latest plan",
+      "Check stock for my plan before I share it"
+    ],
+    "brandColor": "#05677E",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png"
+  }
+}
