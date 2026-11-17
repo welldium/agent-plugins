@@ -23,10 +23,11 @@ The public directories should list the **production** plugin. `welldium-test` st
 - [x] Remote HTTPS MCP server (test: `https://test.welldium.com/api/partner/mcp`)
 - [x] OAuth with pre-registered clients in test Auth DB: `chatgpt`, `claude-pilot`, `codex`. Both directories accept a pre-registered client, so Dynamic Client Registration is **not** required
 - [x] Sign-in that reviewers can use: Welldium Auth supports email + password
+- [ ] **Prod OAuth for the partner MCP** — blocker. On `welldium.com` the protected-resource metadata URL returns the website HTML and the MCP 401 has no `WWW-Authenticate` challenge, so clients cannot discover sign-in. Deploy the Auth OAuth provider and the API OAuth settings to prod
 - [ ] **Production plugin** `welldium` (permanent name) pointing at the prod MCP URL, in both marketplaces
 - [ ] **Register the OAuth clients in the prod Auth DB** (`yarn oauth:register-client` in Welldium.Auth): one per surface, see the Claude and OpenAI sections
 - [ ] **Reviewer test account** in prod: email + password, no SMS/MFA/magic link, populated with sample clients and plans
-- [ ] **Tool annotations** on the MCP server: every tool has a `title` and `readOnlyHint` or `destructiveHint` (Anthropic blocks without them; most common rejection)
+- [x] **Tool annotations**: every tool has `readOnlyHint`/`destructiveHint`; titles added in welldium/WelldiumAPI#3763 (must be deployed)
 - [ ] Privacy policy covers what the plugin sends (health data, client details)
 
 ### Anthropic directory — plugin + connector
@@ -36,15 +37,15 @@ Docs: [Submit your plugin](https://claude.com/docs/plugins/submit), [pre-submiss
 - [x] `claude plugin validate` passes (CI)
 - [x] Kebab-case name, `description`, `author`, `version` set
 - [x] Remote MCP server declared with `type` + `https` URL, no secrets in headers
-- [ ] **`LICENSE`** in the plugin folder, or `license` in `plugin.json` — **blocks** submission. Decide the license
-- [ ] **`README.md` in the plugin folder**, at least 40 words outside code blocks — **blocks**. Must say what the plugin sends where (the security scan checks behaviour against it)
+- [x] **`LICENSE`** (MIT) in the repo root and each plugin folder
+- [x] **`README.md` in the plugin folder** (≥ 40 words), saying what the plugin sends where. Copy it into the prod plugin
 - [ ] Submitter on a paid claude.ai plan (Team/Enterprise: an Owner, or a member with the Directory permission); GitHub account connected on claude.ai with push access
 - [ ] Submit the plugin: **Plugin bundle**, repo `welldium/agent-plugins`, path `plugins/welldium`, tracked branch `main`
 - [ ] Set up the GitHub push webhook (needs repo admin)
 - [ ] Data handling answers: plugin handles **personal health data**
 - [ ] Also submit the MCP server as a **connector** (**MCP connector** in the same portal) and pair it with the plugin. Needs: docs URL, privacy policy URL, support contact, icon
 - [ ] Connector auth: enter the OAuth client id (Anthropic-held client). Callback is `https://claude.ai/api/mcp/auth_callback`. Prefer a prod client with only that redirect, separate from the Claude Code client (`claude-pilot`, fixed port 8080)
-- [ ] If the plan card is an MCP App (interactive UI): 3–5 PNG screenshots, ≥1000 px wide, cropped to the response, with the prompt for each
+- [x] No screenshots needed: the server has no MCP App UI (the plan card was removed in the API)
 
 ### OpenAI directory
 
@@ -60,7 +61,7 @@ Docs: [Upload and submit your plugin](https://developers.openai.com/plugins/depl
 - [ ] **Domain verification**: serve the challenge token at `https://<mcp host>/.well-known/openai-apps-challenge`
 - [ ] Confirm the portal accepts a public client (`tokenEndpointAuthMethod: none`) for `chatgpt`; otherwise register a confidential client and enter its secret in the portal (never in the ZIP)
 - [ ] Confirm which callback Codex uses for directory installs; the `chatgpt` client only allows `https://chatgpt.com/connector_platform_oauth_redirect`
-- [ ] Review materials: **5 positive test cases** (`tools_triggered`, `expected_behavior`), **3 negative test cases**, **demo video URL**, **release notes**, reviewer credentials
+- [ ] Review materials: **5 positive test cases** (`tools_triggered`, `expected_behavior`), **3 negative test cases**, **demo video URL** (a recording exists: `welldium-mcp-plan.mp4`, made before the plan card was removed — re-record), **release notes**, reviewer credentials
 - [ ] Upload the ZIP → fix validation findings → Submit for review → Publish after approval
 
 ## Releases and versions
@@ -68,11 +69,12 @@ Docs: [Upload and submit your plugin](https://developers.openai.com/plugins/depl
 One version per plugin, the same in `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` (CI enforces it).
 
 1. Open a PR that changes the plugin **and raises `version`** in both manifests (semver: patch for wording/prompts, minor for new skills or tools, major for breaking changes). CI fails a PR that changes plugin files without a higher version.
-2. Merge to `main`. That is the release:
+2. Merge to `main`. Claude and Codex read `main`, so this ships the version there:
    - Our marketplaces serve it right away (`claude plugin update` / Codex picks up the new version).
    - Anthropic's directory scans the new commit on `main` and publishes it if it passes.
-   - The **Release** workflow tags the commit `<name>--v<version>` and creates a GitHub release with `<name>-<version>-openai.zip`.
-3. Upload that ZIP in the OpenAI Plugins dashboard (**Upload plugin to make changes**). This step is manual.
+3. Tag the merge commit `<name>--v<version>`: `claude plugin tag --push` from the plugin folder, or `git tag welldium--v1.0.1 && git push origin welldium--v1.0.1`.
+   The **Release** workflow checks the tag matches the manifests, builds `<name>-<version>-openai.zip` and creates a **draft** GitHub release with it.
+4. Review the draft, publish it, and upload the ZIP in the OpenAI Plugins dashboard (**Upload plugin to make changes**). The upload is manual.
 
 MCP tool changes ship with the server, not the plugin: Anthropic and OpenAI re-scan the live server. Keep tool schemas backwards compatible until the new version is approved.
 
@@ -87,4 +89,4 @@ Never rename a published plugin (`name`); change `displayName` instead.
 | `scripts/build-openai.mjs` | Builds `dist/<name>-<version>-openai.zip` for the OpenAI directory |
 | `scripts/release.config.json` | Per-plugin OAuth client id used in the OpenAI ZIP |
 | `.github/workflows/validate.yml` | PRs and main: all checks + ZIP build (downloadable artifact) |
-| `.github/workflows/release.yml` | main: tag + GitHub release with the ZIP for each new version |
+| `.github/workflows/release.yml` | Tag `<name>--v<version>`: draft GitHub release with the ZIP |
