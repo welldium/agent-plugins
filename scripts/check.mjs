@@ -80,6 +80,27 @@ for (const name of claudeNames) {
   }
 }
 
+// 4b. OpenAI directory submission limits (developers.openai.com/plugins/deploy/submission).
+//     The portal rejects the ZIP otherwise, so catch it here instead of at upload time.
+for (const name of claudeNames) {
+  const dir = `plugins/${name}`;
+  const manifest = json[`${dir}/.codex-plugin/plugin.json`];
+  const ui = manifest?.interface;
+  if (!ui) { fail(`${dir}/.codex-plugin/plugin.json: interface is missing`); continue; }
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(name) || name.length > 64) fail(`${dir}: name must be lowercase kebab-case, at most 64 characters`);
+  if (!manifest.author?.name) fail(`${dir}/.codex-plugin/plugin.json: author.name is required`);
+  if (!Array.isArray(ui.capabilities)) fail(`${dir}/.codex-plugin/plugin.json: interface.capabilities is required (use [] if none)`);
+  for (const [key, max] of [["displayName", 30], ["shortDescription", 30], ["longDescription", 4000]]) {
+    if (!ui[key]) fail(`${dir}/.codex-plugin/plugin.json: interface.${key} is required`);
+    else if (ui[key].length > max) fail(`${dir}/.codex-plugin/plugin.json: interface.${key} is ${ui[key].length} characters; OpenAI allows at most ${max}`);
+  }
+  for (const key of ["websiteURL", "supportURL", "privacyPolicyURL", "termsOfServiceURL"]) {
+    const url = ui[key];
+    if (!url) fail(`${dir}/.codex-plugin/plugin.json: interface.${key} is required for OpenAI MCP review`);
+    else if (!url.startsWith("https://") || url.length > 1024) fail(`${dir}/.codex-plugin/plugin.json: interface.${key} must be https and at most 1024 characters`);
+  }
+}
+
 // 5. No secrets. Client ids are public; secrets and API keys must never be committed.
 const secretPatterns = [/wd_live_[0-9a-f]{8,}/i, /client_?secret"\s*:/i, /"x-api-key"\s*:/i, /-----BEGIN [A-Z ]*PRIVATE KEY-----/];
 for (const file of files.filter((f) => !f.endsWith(".png") && !rel(f).startsWith("scripts/"))) {

@@ -1,0 +1,64 @@
+name: Release
+
+# Runs after a merge to main. For every plugin whose version has no tag yet, it tags the commit
+# `<name>--v<version>` (the `claude plugin tag` convention) and creates a GitHub release with
+# the OpenAI submission ZIP attached.
+#
+# What happens on each platform after that:
+#   - Claude Code / Codex marketplace installs: already live — they read main.
+#   - Anthropic directory: picks up the new commit on its tracked branch (webhook or schedule).
+#   - OpenAI directory: manual — upload the ZIP from the release in the Plugins dashboard.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Validate
+        run: |
+          node scripts/check.mjs
+          npx --yes @anthropic-ai/claude-code plugin validate .
+
+      - name: Tag and release new versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for manifest in plugins/*/.claude-plugin/plugin.json; do
+            name=$(jq -r .name "$manifest")
+            version=$(jq -r .version "$manifest")
+            tag="${name}--v${version}"
+            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+              echo "• $tag already released"
+              continue
+            fi
+            node scripts/build-openai.mjs "$name"
+            git tag "$tag" "$GITHUB_SHA"
+            git push origin "$tag"
+            prev=$(git tag --list "${name}--v*" --sort=-v:refname | sed -n 2p)
+            gh release create "$tag" "dist/${name}-${version}-openai.zip" \
+              --title "$name $version" \
+              --generate-notes \
+              ${prev:+--notes-start-tag "$prev"}
+            echo "✔ released $tag"
+          done
