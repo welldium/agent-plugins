@@ -1,0 +1,8 @@
+{
+  "welldium-test": {
+    "openai": {
+      "clientId": "chatgpt",
+      "tokenEndpointAuthMethod": "none"
+    }
+  }
+}
