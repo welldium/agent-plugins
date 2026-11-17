@@ -1,8 +1,6 @@
-# Welldium (test)
+# Welldium
 
 Build supplement plans for your clients from the Welldium catalog, then share them, without leaving Claude, ChatGPT or Codex.
-
-This is the **test** version. It connects to `test.welldium.com` and is meant for the Welldium team to try changes before release.
 
 ## Who it is for
 
@@ -19,9 +17,9 @@ The `build-plan` skill guides the assistant through these steps. It asks you to 
 
 ## What it connects to and what it sends
 
-The plugin adds one remote MCP server, `https://test.welldium.com/api/partner/mcp`, operated by Welldium. It runs no local code, hooks or scripts.
+The plugin adds one remote MCP server, `https://welldium.com/api/partner/mcp`, operated by Welldium. It runs no local code, hooks or scripts.
 
-Sign-in uses OAuth with your Welldium account at `test.welldium.com`. The assistant only receives an access token, never your password.
+Sign-in uses OAuth with your Welldium account at `welldium.com`. The assistant only receives an access token, never your password.
 
 When a tool runs, the plugin sends Welldium only that tool's inputs:
 

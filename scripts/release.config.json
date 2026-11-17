@@ -1,9 +1,20 @@
 {
-  "welldium-test": {
+  "welldium": {
     "openai": {
       "clientId": "chatgpt",
       "tokenEndpointAuthMethod": "none",
       "review": "review/welldium.json"
+    },
+    "test": {
+      "name": "welldium-test",
+      "displayName": "Welldium (test)",
+      "url": "https://test.welldium.com/api/partner/mcp",
+      "clients": {
+        "claude": "claude-pilot",
+        "codex": "codex",
+        "chatgpt": "chatgpt"
+      },
+      "chatgptApp": "asdk_app_6aee4cb2c7e8819194ff1bd44eeef041"
     }
   }
 }

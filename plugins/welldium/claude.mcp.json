@@ -2,9 +2,9 @@
   "mcpServers": {
     "welldium": {
       "type": "http",
-      "url": "https://test.welldium.com/api/partner/mcp",
+      "url": "https://welldium.com/api/partner/mcp",
       "oauth": {
-        "clientId": "claude-pilot",
+        "clientId": "claude",
         "callbackPort": 8080
       }
     }
