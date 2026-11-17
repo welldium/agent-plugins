@@ -52,6 +52,6 @@
     "commerce": false
   },
   "publication": {
-    "release_notes": "First release. Practitioners can search the Welldium catalog with country-specific prices and stock, build supplement plans from a goal, symptoms, a prescription or lab results, adjust them in chat, and share them with clients by email or SMS. Every write is confirmed, and nothing is sent to a client without the practitioner's go-ahead."
+    "release_notes": "First release. Practitioners can search the Welldium catalog with country-specific prices and stock, draft supplement plans around a client's wellness goals, adjust them in chat, and share them with clients by email or SMS. Every write is confirmed, and nothing is sent to a client without the practitioner's go-ahead."
   }
 }

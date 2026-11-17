@@ -27,7 +27,7 @@ Record against prod with the reviewer account, following positive cases 2 → 3 
 
 **Use cases**
 - Search the Welldium catalog with prices and stock for a client's country
-- Build a supplement plan from a goal, symptoms, a prescription or lab results, and adjust it in chat
+- Draft a supplement plan around a client's wellness goals, and adjust it in chat
 - Share the plan with a client by email or SMS, after the practitioner confirms
 
 **What users need before connecting:** a Welldium practitioner account (free sign-up at welldium.com).
