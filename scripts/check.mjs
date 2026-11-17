@@ -101,6 +101,30 @@ for (const name of claudeNames) {
   }
 }
 
+// 4c. OpenAI review files (scripts/release.config.json → <plugin>.openai.review), merged into the ZIP
+//     manifest by build-openai.mjs. Initial MCP review needs exactly 5 positive and 3 negative cases.
+const releaseConfig = json["scripts/release.config.json"] ?? {};
+for (const [name, cfg] of Object.entries(releaseConfig)) {
+  const path = cfg.openai?.review;
+  if (!path) continue;
+  const doc = json[path];
+  if (!doc) { fail(`scripts/release.config.json: ${name}.openai.review points at ${path}, which is missing`); continue; }
+  const { positive = [], negative = [] } = doc.review?.test_cases ?? {};
+  if (positive.length !== 5) fail(`${path}: needs exactly 5 positive test cases (has ${positive.length})`);
+  if (negative.length !== 3) fail(`${path}: needs exactly 3 negative test cases (has ${negative.length})`);
+  positive.forEach((c, i) => {
+    for (const key of ["description", "prompt", "tools_triggered", "expected_behavior"])
+      if (typeof c[key] !== "string" || !c[key].trim()) fail(`${path}: positive[${i}].${key} must be a non-empty string`);
+    if (c.description?.length > 4000) fail(`${path}: positive[${i}].description is over 4000 characters`);
+  });
+  negative.forEach((c, i) => {
+    for (const key of ["description", "prompt"])
+      if (typeof c[key] !== "string" || !c[key].trim()) fail(`${path}: negative[${i}].${key} must be a non-empty string`);
+  });
+  if (doc.review?.test_credentials || doc.review?.reviewer_instructions)
+    fail(`${path}: reviewer credentials go in the portal's Review details, never in the package`);
+}
+
 // 5. No secrets. Client ids are public; secrets and API keys must never be committed.
 const secretPatterns = [/wd_live_[0-9a-f]{8,}/i, /client_?secret"\s*:/i, /"x-api-key"\s*:/i, /-----BEGIN [A-Z ]*PRIVATE KEY-----/];
 for (const file of files.filter((f) => !f.endsWith(".png") && !rel(f).startsWith("scripts/"))) {

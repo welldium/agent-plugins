@@ -61,7 +61,8 @@ Docs: [Upload and submit your plugin](https://developers.openai.com/plugins/depl
 - [ ] **Domain verification**: serve the challenge token at `https://<mcp host>/.well-known/openai-apps-challenge`
 - [ ] Confirm the portal accepts a public client (`tokenEndpointAuthMethod: none`) for `chatgpt`; otherwise register a confidential client and enter its secret in the portal (never in the ZIP)
 - [ ] Confirm which callback Codex uses for directory installs; the `chatgpt` client only allows `https://chatgpt.com/connector_platform_oauth_redirect`
-- [ ] Review materials: **5 positive test cases** (`tools_triggered`, `expected_behavior`), **3 negative test cases**, **demo video URL** (a recording exists: `welldium-mcp-plan.mp4`, made before the plan card was removed — re-record), **release notes**, reviewer credentials
+- [x] **Test cases** (5 positive, 3 negative) and **release notes** in `review/welldium.json`, built into the ZIP manifest (checked in CI)
+- [ ] **Demo video URL** in `review/welldium.json` (re-record: the existing `welldium-mcp-plan.mp4` predates the plan-card removal), and **reviewer credentials** in the portal. See `docs/REVIEW.md`
 - [ ] Upload the ZIP → fix validation findings → Submit for review → Publish after approval
 
 ## Releases and versions
@@ -87,6 +88,7 @@ Never rename a published plugin (`name`); change `displayName` instead.
 | `scripts/check.mjs` | Repo rules: JSON, matching versions, Codex quirks, OpenAI listing limits, no secrets |
 | `scripts/check-version-bump.mjs` | PR check: changed plugin ⇒ higher version |
 | `scripts/build-openai.mjs` | Builds `dist/<name>-<version>-openai.zip` for the OpenAI directory |
-| `scripts/release.config.json` | Per-plugin OAuth client id used in the OpenAI ZIP |
+| `scripts/release.config.json` | Per-plugin OAuth client id and review file used in the OpenAI ZIP |
+| `review/<name>.json` | OpenAI review test cases, demo URL and release notes (merged into the ZIP manifest) |
 | `.github/workflows/validate.yml` | PRs and main: all checks + ZIP build (downloadable artifact) |
 | `.github/workflows/release.yml` | Tag `<name>--v<version>`: draft GitHub release with the ZIP |

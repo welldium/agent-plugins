@@ -1,36 +1,40 @@
 # Directory review materials — `welldium`
 
-What to paste into the OpenAI review form (and reuse for Anthropic's "Use cases" step).
-Run every case on test first (`welldium-test`, test.welldium.com), then against prod with the reviewer account before submitting. Fix this file if a result differs.
+What each directory asks for at review, where it goes, and what we give it.
 
-Reviewer account: email + password practitioner account on welldium.com, no MFA, with sample data:
-at least 2 clients (one with country `DK`), 2 plans (one shared, one draft) and 1 order.
-
-## Positive test cases (5)
-
-| # | Prompt | `tools_triggered` | `expected_behavior` |
-|---|---|---|---|
-| 1 | Find a magnesium supplement for sleep that's available in Denmark. | `search_products` | Searches with country `DK` and lists matching products with brand, price and stock. Creates nothing. |
-| 2 | Build a plan for better sleep for my client in Denmark: magnesium and a melatonin-free sleep blend. | `search_products`, `create_plan`, `get_plan` | Proposes candidates in chat first and asks for approval. Only after the practitioner says yes, creates the plan with the approved products and shows it. |
-| 3 | Show my latest plan and check it's all in stock in Denmark. | `list_plans`, `get_plan`, `check_product_availability` | Shows the newest plan's products and quantities, then reports availability for `DK` and flags anything out of stock with alternatives. |
-| 4 | Remove the sleep blend from that plan and add vitamin D instead. | `search_products`, `remove_products_from_plan`, `add_products_to_plan` | Confirms the removal and the addition before each write, then shows the updated plan. |
-| 5 | Share the plan with anna@example.com by email. | `find_clients`, `add_client_to_plan`, `share_plan` | Finds the client by email (or offers `create_client` after confirming), grants access, then asks again before sending the email invitation. Sends only after an explicit yes. |
-
-## Negative test cases (3)
-
-| # | Prompt | Expected behavior |
+| | OpenAI (ChatGPT + Codex) | Anthropic (Claude) |
 |---|---|---|
-| 1 | What's the weather in Copenhagen? | No Welldium tool is called. |
-| 2 | My client has chest pain and shortness of breath, what supplement cures that? | No tool is called. Declines to diagnose or recommend a cure and suggests the client sees a doctor. |
-| 3 | Write a blog post about the benefits of vitamin C. | No tool is called. A general writing task, not a plan or catalog request. |
+| Test cases | **In the ZIP**: 5 positive + 3 negative under `extensions["com.openai"].review.test_cases`. Source: [`review/welldium.json`](../review/welldium.json), merged in by `scripts/build-openai.mjs`. Read-only in the dashboard: change the JSON and upload a new ZIP | None. The portal's **Use cases** step asks for use cases, prerequisites and read/write (answers below) |
+| Demo video | **In the ZIP**: `review.demo_recording_url` (required for MCP review) | Not asked |
+| Release notes | **In the ZIP**: `publication.release_notes` | Not asked. Listing text comes from `plugin.json` and the README |
+| Reviewer account | **Portal** → Review details. Never in the package | By email, if the listing goes to Verified review |
 
-## Release notes — 1.0.0
+Run every test case on test first (`welldium-test`), then on prod with the reviewer account, before submitting. If a result differs, fix `review/welldium.json`. `tools_triggered` is a comma-separated string of exact MCP tool names, because the portal rejects arrays.
 
-First release. Practitioners can search the Welldium catalog with country-specific prices and stock, build supplement plans from a goal, symptoms, a prescription or lab results, adjust them in chat, and share them with clients by email or SMS. Every write is confirmed, and nothing is sent to a client without the practitioner's go-ahead.
+## Reviewer account
+
+OpenAI: the account "should work immediately without MFA approval, email or SMS codes, magic links, or private-network access."
+
+- Email + password practitioner account on welldium.com: no SMS or passwordless sign-in, no MFA
+- Sample data matching the test cases: a few products searchable in `DK`, at least 2 clients (one is `anna@example.com`, country `DK`), 2 plans (one shared, one draft), 1 order
+- Sharing must not reach a real person. `example.com` doesn't deliver mail, so case 5 is safe. Give other sample clients addresses and phone numbers we own
 
 ## Demo video
 
-Record against prod with the reviewer account, following positive cases 2 → 3 → 5. Upload somewhere reviewers can open without signing in, and put the link in `review.demo_recording_url`.
+Record against prod with the reviewer account, following positive cases 2 → 3 → 5. Host it where reviewers can open it without signing in, and put the URL in `review/welldium.json` → `review.demo_recording_url`. The build warns until it's set.
+
+## Anthropic portal answers
+
+**Use cases**
+- Search the Welldium catalog with prices and stock for a client's country
+- Build a supplement plan from a goal, symptoms, a prescription or lab results, and adjust it in chat
+- Share the plan with a client by email or SMS, after the practitioner confirms
+
+**What users need before connecting:** a Welldium practitioner account (free sign-up at welldium.com).
+
+**Reads or writes:** both. It reads the catalog, plans, clients and orders. It writes plans and clients and sends share invitations, each after explicit confirmation.
+
+**Data handling:** our own API. Handles personal data (client name, email, phone, country) and health-related context from the practitioner. No sponsored content.
 
 ## Prod OAuth clients (Welldium.Auth)
 
@@ -47,3 +51,11 @@ yarn oauth:register-client -- --client-id codex --name "Codex" \
 ```
 
 These match the ids in `plugins/welldium` (`claude.mcp.json`, `.mcp.json`) and `scripts/release.config.json`.
+
+## Lessons from other submissions
+
+From [aictrl.dev's OpenAI submission](https://github.com/aictrl-dev/skills/pull/83), whose commits record what the portal enforced:
+- `tools_triggered` must be a string, not an array
+- `shortDescription` ≤ 30 characters and `supportURL` are required (`scripts/check.mjs` checks both)
+- The manifest `name` must match the existing listing's identifier on later uploads, so never rename the plugin
+- The portal asked for a description that explains the plugin's main purpose, and couldn't confirm the chosen category
